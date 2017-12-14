@@ -17,7 +17,6 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
-from game import Actions
 import util
 
 class SearchProblem:
@@ -89,31 +88,46 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     actions = []
-    res = _dfs(problem, problem.getStartState(), actions)
-    return actions
+    visited = []
+    res = _dfs(problem, problem.getStartState(), actions, visited)
+    return res
 
 
-def _dfs(problem, state, actions):
+def _dfs(problem, state, actions, visited):
     if problem.isGoalState(state):
-        return True
+        return actions
 
-    # getSuccessors should have already filtered out visited pos
+    visited.append(state)
     successors = problem.getSuccessors(state)
     for nextState, action, cost in successors:
-        nextx, nexty = nextState
-        x, y = state.getPosition()
-        vector = (nextx - x, nexty - y)
-        action = Actions.vectorToDirection(vector)
-        if _dfs(problem, nextState, list(actions).append(action)):
-            return True
+        if nextState not in visited:
+            cur_acts = actions[:]
+            cur_acts.append(action)
+            res = _dfs(problem, nextState, cur_acts, visited)
+            if res:
+                return res
 
-    return False
+    return None
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.Queue()
+    state = problem.getStartState()
+    actions = []
+    queue.push(state)
+
+    while not queue.isEmpty():
+        state = queue.pop()
+        if problem.isGoalState(state):
+            return actions
+
+        successors = problem.getSuccessors(state)
+        for next_state, action, cost in successors:
+            if next_state not in queue.list:
+                queue.push(state)
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
