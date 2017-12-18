@@ -113,31 +113,31 @@ def _dfs(problem, state, actions, visited):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    state = problem.getStartState()
-    action = None
-    path = [(state, action)]
-    paths = util.Queue()
-    paths.push(path)
+    start_state = problem.getStartState()
+    states = util.Queue()
+    states.push(start_state)
     visited = []
+    actions_q = util.Queue()
+    actions_q.push([])
 
-    while not paths.isEmpty():
-        path = paths.pop()
-        if problem.isGoalState(path[0]):
-            break
+    while not states.isEmpty():
+        cur_state = states.pop()
+        actions = actions_q.pop()
+        if problem.isGoalState(cur_state):
+            return actions
 
-        visited.append(path[0])
-        successors = problem.getSuccessors(path[0])
+        visited.append(cur_state)
+        successors = problem.getSuccessors(cur_state)
         for next_state, action, cost in successors:
-            if next_state not in visited:
-                tmp = path[:]
-                tmp.append((next_state, action))
-                paths.push(tmp)
+            if next_state not in visited and next_state not in states.list:
+                states.push(next_state)
 
-    actions = []
-    for _, action in path:
-        actions.append(action)
+                tmp = actions[:]
+                tmp.append(action)
+                actions_q.push(tmp)
 
-    return actions
+    return []
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
