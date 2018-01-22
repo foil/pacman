@@ -470,7 +470,9 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    paths = [abs(c[0] - position[0]) + abs(c[1] - position[1]) for c in foodGrid.asList()]
+    min_path = min(paths) if paths else 0
+    return min_path # Default to trivial solution
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
