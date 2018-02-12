@@ -400,6 +400,21 @@ class FoodSearchProblem:
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
 
+        food = startingGameState.getFood()
+        for x in range(self.walls.width):
+            for y in range(self.walls.height):
+                if self.walls[x][y]:
+                    continue
+
+                self.heuristicInfo[(x, y)] = {}
+                for fx in range(food.width):
+                    for fy in range(food.height):
+                        if food[fx][fy]:
+                            d = mazeDistance((x, y), (fx, fy), startingGameState)
+                            self.heuristicInfo[(x, y)][(fx, fy)] = d
+                        else:
+                            self.heuristicInfo[(x, y)][(fx, fy)] = 0
+
     def getStartState(self):
         return self.start
 
@@ -470,9 +485,29 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    paths = [abs(c[0] - position[0]) + abs(c[1] - position[1]) for c in foodGrid.asList()]
-    min_path = min(paths) if paths else 0
-    return min_path # Default to trivial solution
+    #paths = [abs(c[0] - position[0]) + abs(c[1] - position[1]) for c in foodGrid.asList()]
+    foods = foodGrid.asList()
+    if len(foods) == 0:
+        return 0
+    elif len(foods) == 1:
+        return problem.heuristicInfo[position][foods[0]]
+    else:
+        # 1. get longest distance between rest 2 foods
+        max_dis = 0
+        max_f1 = ()
+        max_f2 = ()
+        for f in foods:
+            for k, v in problem.heuristicInfo[f].iteritems():
+                if v > max_dis:
+                    max_dis = v
+                    max_f1 = f
+                    max_f2 = k
+
+        # 2. get distance between current pos and nearer food
+        p1 = problem.heuristicInfo[position][max_f1]
+        p2 = problem.heuristicInfo[position][max_f2]
+
+        return min(p1, p2) + max_dis # Default to trivial solution
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
