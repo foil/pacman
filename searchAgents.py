@@ -492,22 +492,19 @@ def foodHeuristic(state, problem):
     elif len(foods) == 1:
         return problem.heuristicInfo[position][foods[0]]
     else:
-        # 1. get longest distance between rest 2 foods
-        max_dis = 0
-        max_f1 = ()
-        max_f2 = ()
+        d1 = 0
+        d2 = 999999
         for f in foods:
-            for k, v in problem.heuristicInfo[f].iteritems():
-                if v > max_dis:
-                    max_dis = v
-                    max_f1 = f
-                    max_f2 = k
+            d = problem.heuristicInfo[position][f]
+            if d > d1:
+                d1 = d
+            if d < d2:
+                d2 = d
 
-        # 2. get distance between current pos and nearer food
-        p1 = problem.heuristicInfo[position][max_f1]
-        p2 = problem.heuristicInfo[position][max_f2]
-
-        return min(p1, p2) + max_dis # Default to trivial solution
+    # for the tricky test, it appears that the real distance between
+    # current position and furthest food is enough for heuristic
+    # expanded nodes: 4110
+        return d1
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
