@@ -87,56 +87,61 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    def _dfs(state):
+        if problem.isGoalState(state):
+            return True
+    
+        visited.add(state)
+        successors = problem.getSuccessors(state)
+        for nextState, action, cost in successors:
+            if nextState not in visited:
+                actions.append(action)
+                res = _dfs(nextState)
+                if res:
+                    return True
+                actions.pop()
+    
+        return False
+
     actions = []
-    visited = []
-    res = _dfs(problem, problem.getStartState(), actions, visited)
-    return res
-
-
-def _dfs(problem, state, actions, visited):
-    if problem.isGoalState(state):
-        return actions
-
-    visited.append(state)
-    successors = problem.getSuccessors(state)
-    for nextState, action, cost in successors:
-        if nextState not in visited:
-            cur_acts = actions[:]
-            cur_acts.append(action)
-            res = _dfs(problem, nextState, cur_acts, visited)
-            if res:
-                return res
-
-    return None
+    visited = set()
+    _dfs(problem.getStartState())
+    return actions
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    start_state = problem.getStartState()
+    cur_state = problem.getStartState()
     states = util.Queue()
-    states.push(start_state)
-    visited = []
-    actions_q = util.Queue()
-    actions_q.push([])
+    states.push(cur_state)
+    visited = dict()
+    visited[cur_state] = None
+    found = False
+    actions = []
 
     while not states.isEmpty():
         cur_state = states.pop()
-        actions = actions_q.pop()
         if problem.isGoalState(cur_state):
-            return actions
+            found = True
+            break
 
-        visited.append(cur_state)
         successors = problem.getSuccessors(cur_state)
         for next_state, action, cost in successors:
             if next_state not in visited and next_state not in states.list:
+                visited[next_state] = cur_state
                 states.push(next_state)
 
-                tmp = actions[:]
-                tmp.append(action)
-                actions_q.push(tmp)
+    if not found:
+        return actions
 
-    return []
+    cur_state = visited[cur_state]
+    while cur_state:
+        _, action, _ = problem.getSuccessors[cur_state]
+        actions.insert(0, action)
+        cur_state = visited[cur_state]
+
+    return actions
 
 
 def uniformCostSearch(problem):
