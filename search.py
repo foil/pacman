@@ -116,7 +116,7 @@ def breadthFirstSearch(problem):
     states = util.Queue()
     states.push(cur_state)
     visited = dict()
-    visited[cur_state] = None
+    visited[cur_state] = (None, None)
     found = False
     actions = []
 
@@ -128,18 +128,17 @@ def breadthFirstSearch(problem):
 
         successors = problem.getSuccessors(cur_state)
         for next_state, action, cost in successors:
-            if next_state not in visited and next_state not in states.list:
-                visited[next_state] = cur_state
+            if next_state not in visited: 
+                visited[next_state] = (cur_state, action)
                 states.push(next_state)
 
     if not found:
         return actions
 
-    cur_state = visited[cur_state]
-    while cur_state:
-        _, action, _ = problem.getSuccessors[cur_state]
-        actions.insert(0, action)
-        cur_state = visited[cur_state]
+    while cur_state is not None:
+        cur_state, action = visited[cur_state]
+        if action is not None:
+            actions.insert(0, action)
 
     return actions
 
@@ -147,28 +146,37 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    start_state = problem.getStartState()
+    state = problem.getStartState()
     stack = util.Stack()
-    stack.push((start_state, [], 0))
-    visited = []
+    stack.push((state, 0))
+    visited = dict()
+    visited[state] = (None, None)
+    found = False
+    actions = []
 
     while not stack.isEmpty():
-        state, actions, total_cost = stack.pop()
+        state, total_cost = stack.pop()
         if problem.isGoalState(state):
-            return actions
+            found = True
+            break
 
-        visited.append(state)
         successors = problem.getSuccessors(state)
         for next_state, action, cost in successors:
             if next_state not in visited or problem.isGoalState(next_state):
-                visited.append(next_state)
-                tmp = actions[:]
-                tmp.append(action)
-                stack.push((next_state, tmp, total_cost + cost))
+                visited[next_state] = (state, action)
+                stack.push((next_state, total_cost + cost))
 
-        stack.list.sort(key=lambda tup: tup[2], reverse=True)
+        stack.list.sort(key=lambda tup: tup[1], reverse=True)
 
-    return []
+    if not found:
+        return actions
+
+    while state is not None:
+        state, action = visited[state]
+        if action is not None:
+            actions.insert(0, action)
+
+    return actions
 
 
 def nullHeuristic(state, problem=None):
